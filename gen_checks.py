@@ -8,7 +8,7 @@ def trend(ticker):
     df = pd.read_csv("stocks/{}.csv".format(ticker), index_col=0)
     opens = df['Open'].iloc[-20:].values
     slope, intercept, r_value, p_value, std_err = linregress(range(len(opens)), opens)
-    return 20 * slope / df['Open'].iloc[-20] >= 0.1
+    return 20 * slope >= 0.1 * df['Open'].iloc[-20]
 
 def volume(ticker):
     df = pd.read_csv("stocks/{}.csv".format(ticker), index_col=0)
