@@ -19,10 +19,11 @@ def intervals(ticker):
     INTERVALS = [(100, 105), (200, 205), (300, 305), (400, 405), (500, 510), (1000, 1010), (1500, 1520), (2000, 2020), (2500, 2520), (3000, 3030), (3500, 3530), (4000, 4040), (4500, 4540), (5000, 5050)]
     df = pd.read_csv("stocks/{}.csv".format(ticker), index_col=0)
     closes = df['Close'].iloc[-3:].values
+    opens = df['Open'].iloc[-3:].values
     counts = 0
-    for close in closes:
+    for i in range(3):
         for interval in INTERVALS:
-            if interval[0] <= close <= interval[1]:
+            if interval[0] <= closes[i] <= interval[1] or (opens[i] < interval[0] and closes[i] > interval[1]):
                 return True
     two_year_high = df['High'].iloc[-500:].max()
     five_day_high = df['High'].iloc[-5:].max()
