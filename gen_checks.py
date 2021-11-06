@@ -39,9 +39,13 @@ def intervals(ticker):
                 return 1
     return 0
     
+def consistent_earnings(ticker):
+    df = pd.read_csv("earnings/{}.csv".format(ticker))
+    percentages = df['epsactual'].iloc[-20:].values / df['epsestimate'].iloc[-20:].values - 1
+    scores = np.array([logistic.cdf(5*percentage) * 2 - 1 for percentage in percentages])
+    return np.round(np.sum(scores) / 20, 4)
 
-
-checks = {'Trend':  trend, 'Long Term Trend': long_term_trend, 'Volume': volume, 'Hundreds': intervals}
+checks = {'Trend':  trend, 'Long Term Trend': long_term_trend, 'Volume': volume, 'Hundreds': intervals, 'Earnings': consistent_earnings, }
 
 for check in checks:
     print("Checking {}".format(check))
