@@ -11,6 +11,13 @@ def trend(ticker):
     percent =  20 * slope / df['Open'].iloc[-20]
     return np.round(logistic.cdf(10*percent) * 2 - 1, 4)
 
+def long_term_trend(ticker):
+    df = pd.read_csv("stocks/{}.csv".format(ticker), index_col=0)
+    opens = df['Open'].iloc[-60:].values
+    slope, intercept, r_value, p_value, std_err = linregress(range(len(opens)), opens)
+    percent = 60 * slope / df['Open'].iloc[-60]
+    return np.round(logistic.cdf(5*percent) * 2 - 1, 4)
+
 def volume(ticker):
     df = pd.read_csv("stocks/{}.csv".format(ticker), index_col=0)
     volumes = df['Volume'].iloc[-60:].values * df['Close'].iloc[-60:].values
@@ -34,14 +41,14 @@ def intervals(ticker):
     
 
 
-checks = {'Trend':  trend, 'Volume': volume, 'Hundreds': intervals}
+checks = {'Trend':  trend, 'Long Term Trend': long_term_trend, 'Volume': volume, 'Hundreds': intervals}
 
 for check in checks:
     print("Checking {}".format(check))
     df[check] = df['Stock'].apply(checks[check])
 
 def passes(row):
-    return np.sum(row.drop(['Stock']).astype(np.float32))
+    return np.round(np.sum(row.drop(['Stock']).astype(np.float32)), 4)
 
 df['Passes'] = df.apply(passes, axis=1)
 
