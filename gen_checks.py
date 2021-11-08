@@ -1,28 +1,32 @@
 import pandas as pd
-from scipy.stats import linregress, logistic
+from scipy.stats import linregress
 import numpy as np
+from math import exp
 
 df = pd.read_csv("usable_stocks.txt", header=None, names=["Stock"])
+
+def sigmoid(x):
+    return 1 / (1 + exp(-x))
 
 def trend(ticker):
     df = pd.read_csv("stocks/{}.csv".format(ticker), index_col=0)
     opens = df['Open'].iloc[-20:].values
     slope, intercept, r_value, p_value, std_err = linregress(range(len(opens)), opens)
     percent =  20 * slope / df['Open'].iloc[-20]
-    return np.round(logistic.cdf(10*percent) * 2 - 1, 4)
+    return np.round(sigmoid(10*percent) * 2 - 1, 4)
 
 def long_term_trend(ticker):
     df = pd.read_csv("stocks/{}.csv".format(ticker), index_col=0)
     opens = df['Open'].iloc[-60:].values
     slope, intercept, r_value, p_value, std_err = linregress(range(len(opens)), opens)
     percent = 60 * slope / df['Open'].iloc[-60]
-    return np.round(logistic.cdf(5*percent) * 2 - 1, 4)
+    return np.round(sigmoid(5*percent) * 2 - 1, 4)
 
 def volume(ticker):
     df = pd.read_csv("stocks/{}.csv".format(ticker), index_col=0)
     volumes = df['Volume'].iloc[-60:].values * df['Close'].iloc[-60:].values
     percent = np.mean(volumes[-5:])/ np.mean(volumes) - 1
-    return np.round(logistic.cdf(4*percent) * 2 - 1, 4)
+    return np.round(sigmoid(4*percent) * 2 - 1, 4)
 
 def intervals(ticker):
     df = pd.read_csv("stocks/{}.csv".format(ticker), index_col=0)
@@ -42,7 +46,7 @@ def intervals(ticker):
 def consistent_earnings(ticker):
     df = pd.read_csv("earnings/{}.csv".format(ticker))
     percentages = df['epsactual'].iloc[-20:].values / df['epsestimate'].iloc[-20:].values - 1
-    scores = np.array([logistic.cdf(5*percentage) * 2 - 1 for percentage in percentages])
+    scores = np.array([sigmoid(5*percentage) for percentage in percentages]) * 2 - 1
     return np.round(np.sum(scores) / 20, 4)
 
 checks = {'Trend':  trend, 'Long Term Trend': long_term_trend, 'Volume': volume, 'Hundreds': intervals, 'Earnings': consistent_earnings, }
@@ -52,9 +56,9 @@ for check in checks:
     df[check] = df['Stock'].apply(checks[check])
 
 def passes(row):
-    return np.round(np.sum(row.drop(['Stock']).astype(np.float32)), 4)
+    return np.round(np.sum(row), 4)
 
-df['Passes'] = df.apply(passes, axis=1)
+df['Passes'] = df.drop(columns=["Stock"]).apply(passes, axis=1)
 
 df.sort_values('Passes', ascending=False, inplace=True)
 
