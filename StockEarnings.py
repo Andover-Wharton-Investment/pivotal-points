@@ -11,11 +11,13 @@ with open('usable_stocks.txt', 'r') as f:
                 try:
                     stock = si.get_earnings_history(line.strip())
                 
-                    df = pd.DataFrame.from_dict(stock)[['epsestimate', 'epsactual']].dropna()
+                    df = pd.DataFrame.from_dict(stock)[['startdatetime', 'epsestimate', 'epsactual']].dropna()
+                    df['startdatetime'] = df['startdatetime'].apply(lambda x: x[:10])
+                    df.drop_duplicates(subset='startdatetime', keep='last', inplace=True)
                     df.to_csv('earnings/' + line.strip() + '.csv', index=False)
                     used.append(line.strip())
                     break
-                except  KeyError:
+                except KeyError:
                     print("Broken")
                     break
                 except (IndexError, TypeError):
