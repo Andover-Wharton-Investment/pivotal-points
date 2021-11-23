@@ -10,17 +10,20 @@ def trend(df):
     opens = df['Close'].iloc[-20:].values
     slope, intercept, r_value, p_value, std_err = linregress(range(len(opens)), opens)
     percent =  20 * slope / df['Close'].iloc[-20]
+    return np.round(percent, 4)
     return np.round(sigmoid(10*percent) * 2 - 1, 4)
 
 def long_term_trend(df):
     opens = df['Close'].iloc[-60:].values
     slope, intercept, r_value, p_value, std_err = linregress(range(len(opens)), opens)
     percent = 60 * slope / df['Close'].iloc[-60]
+    return np.round(percent, 4)
     return np.round(sigmoid(5*percent) * 2 - 1, 4)
 
 def volume(df):
     volumes = df['Volume'].iloc[-60:].values * df['Close'].iloc[-60:].values
     percent = np.mean(volumes[-5:])/ np.mean(volumes) - 1
+    np.round(percent, 4)
     return np.round(sigmoid(4*percent) * 2 - 1, 4)
 
 df = pd.DataFrame(columns=['Date', 'ticker', 'trend', 'long_term_trend', 'volume', 'return'])
@@ -35,7 +38,7 @@ with open('usable_stocks.txt', 'r') as f:
         try:
             end_date = cur_df.index[cur_df['Date'] == '2020-12-31'].tolist()[0]
             for i in range(end_date, 60, -20):
-                df.loc[row_num] = [cur_df['Date'][i], ticker, trend(cur_df.iloc[:i+1]), long_term_trend(cur_df.iloc[:i+1]), volume(cur_df.iloc[:i+1]), np.round(cur_df['Close'][i+1] / cur_df['Close'][i] - 1, 4)]
+                df.loc[row_num] = [cur_df['Date'][i], ticker, trend(cur_df.iloc[:i+1]), long_term_trend(cur_df.iloc[:i+1]), volume(cur_df.iloc[:i+1]), np.round(cur_df['Close'][i+20] / cur_df['Close'][i] - 1, 4)]
                 row_num += 1
         except IndexError:
             pass
