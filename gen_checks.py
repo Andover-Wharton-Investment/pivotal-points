@@ -51,15 +51,17 @@ def consistent_earnings(ticker):
 
 checks = {'Trend':  trend, 'Long Term Trend': long_term_trend, 'Volume': volume, 'Hundreds': intervals, 'Earnings': consistent_earnings, }
 
-for check in checks:
-    print("Checking {}".format(check))
-    df[check] = df['Stock'].apply(checks[check])
+if __name__ == '__main__':
 
-def passes(row):
-    return np.round(np.sum(row), 4)
+    for check in checks:
+        print("Checking {}".format(check))
+        df[check] = df['Stock'].apply(checks[check])
 
-df['Passes'] = df.drop(columns=["Stock"]).apply(passes, axis=1)
+    def passes(row):
+        return np.round(np.sum(row), 4)
 
-df.sort_values('Passes', ascending=False, inplace=True)
+    df['Passes'] = df.drop(columns=["Stock"]).apply(passes, axis=1)
 
-df.to_csv("stock_list_checks.csv", index=False)
+    df.sort_values('Passes', ascending=False, inplace=True)
+
+    df.to_csv("stock_list_checks.csv", index=False)
