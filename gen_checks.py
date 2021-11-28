@@ -29,17 +29,17 @@ def volume(ticker):
     return np.round(sigmoid(4*percent) * 2 - 1, 4)
 
 def rsi(ticker):
-    df = pd.read_csv("stock/{}.csv".format(ticker),index_col=0)
+    df = pd.read_csv("stocks/{}.csv".format(ticker),index_col=0)
     window_length = 14
-    closes = df['Close'].iloc[-14:].values
+    closes = df['Close'].iloc[-15:]
     delta = closes.diff()
     gain = delta.clip(lower=0)
     loss = delta.clip (upper=0).abs()
-    average_gain = gain.ewm(span=window_length).mean()
-    average_loss = loss.ewm(span=window_length).mean()
-    rs = average_gain / average_loss
-    rsi = 100 - (100 / (1+rs))
-    return np.round(((-1)*(rsi-1)*2)-1)
+    average_gain = gain.ewm(com=window_length-1, adjust=True, min_periods=window_length).mean()
+    average_loss = loss.ewm(com=window_length-1, adjust=True, min_periods=window_length).mean()
+    rs = average_gain.iloc[-1] / average_loss.iloc[-1]
+    rsi_final = (100 - (100 / (1+rs)))*0.01
+    return ((-1)*(rsi_final-1)*2)-1
 
 def intervals(ticker):
     df = pd.read_csv("stocks/{}.csv".format(ticker), index_col=0)
