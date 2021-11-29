@@ -68,5 +68,7 @@ print("Applying")
 appiled_df = df.swifter.apply(lambda row: get_cols(row.ticker, row.i), axis='columns', result_type='expand')
 df = pd.concat([df.drop(columns=['i']), appiled_df], axis='columns')
 
+print('Sorting')
 df.sort_values('Date', inplace=True)
+print('Saving')
 df.to_csv('historical_correlation.csv', index=False)
