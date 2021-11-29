@@ -55,7 +55,6 @@ with open('usable_stocks.txt', 'r') as f:
         print(ticker)
         cur_df = pd.read_csv("stocks/{}.csv".format(ticker))
         dfs[ticker] = cur_df
-        num_rows = len(cur_df.index)
         try:
             end_date = cur_df.index[cur_df['Date'] == '2019-12-31'].tolist()[0]
             for i in range(end_date, 60, -5):
