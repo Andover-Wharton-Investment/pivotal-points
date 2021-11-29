@@ -1,3 +1,4 @@
+import swifter
 import pandas as pd
 from scipy.stats import linregress
 import numpy as np
@@ -65,7 +66,7 @@ with open('usable_stocks.txt', 'r') as f:
 
 print("Applying")
 
-appiled_df = df.apply(lambda row: get_cols(row.ticker, row.i), axis='columns', result_type='expand')
+appiled_df = df.swifter.apply(lambda row: get_cols(row.ticker, row.i), axis='columns', result_type='expand')
 df = pd.concat([df.drop(columns=['i']), appiled_df], axis='columns')
 
 df.sort_values('Date', inplace=True)
