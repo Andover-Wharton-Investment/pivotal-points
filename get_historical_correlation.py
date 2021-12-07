@@ -39,21 +39,41 @@ def rsi(df):
     rsi_final = (100 - (100 / (1+rs)))*0.01
     return ((-1)*(rsi_final-1)*2)-1
 
+def intervals(df):
+    two_year_high = df['High'].iloc[-500:].max()
+    # twenty_day_high = df['High'].iloc[-20:].max()
+    closes = df['Close'].iloc[-20:].values
+    opens = df['Open'].iloc[-20:].values
+    highs = df['High'].iloc[-20:].values
+    ath_pivotal = 0
+    for i in range(1, 21):
+        if highs[-i] == two_year_high:
+            # days_since_ath = len(closes)
+            ath_pivotal = (20 - i)/20
+            break
+    INTERVALS = [(100, 105), (200, 205), (300, 305), (400, 405), (500, 510), (1000, 1010), (1500, 1520), (2000, 2020), (2500, 2520), (3000, 3030), (3500, 3530), (4000, 4040), (4500, 4540), (5000, 5050)]
+    interval_pivotal = 0
+    for i in range(1, 21):
+        for interval in INTERVALS:
+            if interval[0] <= closes[-i] <= interval[1] or (opens[-i] < interval[0] and closes[-i] > interval[1]):
+                interval_pivotal = (20-i) / 20
+    return ath_pivotal + interval_pivotal
+
 dfs = {}
 
 def get_cols(ticker, i):
     cur_df = dfs[ticker]
-    return {"20 day trend": trend_twenty_day(cur_df.iloc[:i+1]), "60 day trend": trend_sixty_day(cur_df.iloc[:i+1]), "Volume": volume(cur_df.iloc[:i+1]), "RSI": rsi(cur_df.iloc[:i+1]), "5 day return": np.round(cur_df['Close'][i+5] / cur_df['Close'][i] - 1, 4), "20 day return": np.round(cur_df['Close'][i+20] / cur_df['Close'][i] - 1, 4), "60 day return": np.round(cur_df['Close'][i+60] / cur_df['Close'][i] - 1, 4), "One year return": np.round(cur_df['Close'][i+252] / cur_df['Close'][i] - 1, 4)}
+    return {"20 day trend": trend_twenty_day(cur_df.iloc[:i+1]), "60 day trend": trend_sixty_day(cur_df.iloc[:i+1]), "Volume": volume(cur_df.iloc[:i+1]), "RSI": rsi(cur_df.iloc[:i+1]), "Pivotal": intervals(cur_df.iloc[:i+1]), "5 day return": np.round(cur_df['Close'][i+5] / cur_df['Close'][i] - 1, 4), "20 day return": np.round(cur_df['Close'][i+20] / cur_df['Close'][i] - 1, 4), "60 day return": np.round(cur_df['Close'][i+60] / cur_df['Close'][i] - 1, 4), "One year return": np.round(cur_df['Close'][i+252] / cur_df['Close'][i] - 1, 4)}
 
 df = pd.DataFrame(columns=['i', 'Date', 'ticker'])
 
 print("Dates")
-with open('usable_stocks.txt', 'r') as f:
+with open('historical_stocks.txt', 'r') as f:
     row_num = 0
     for line in f:
         ticker = line.strip()
         print(ticker)
-        cur_df = pd.read_csv("stocks/{}.csv".format(ticker))
+        cur_df = pd.read_csv("historical/{}.csv".format(ticker))
         dfs[ticker] = cur_df
         try:
             end_date = cur_df.index[cur_df['Date'] == '2019-12-31'].tolist()[0]
