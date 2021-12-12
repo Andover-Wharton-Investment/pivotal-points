@@ -62,8 +62,12 @@ def intervals(df):
 dfs = {}
 
 def get_cols(ticker, i):
-    cur_df = dfs[ticker]
-    return {"20 day trend": trend_twenty_day(cur_df.iloc[:i+1]), "60 day trend": trend_sixty_day(cur_df.iloc[:i+1]), "Volume": volume(cur_df.iloc[:i+1]), "RSI": rsi(cur_df.iloc[:i+1]), "Pivotal": intervals(cur_df.iloc[:i+1]), "5 day return": np.round(cur_df['Close'][i+5] / cur_df['Close'][i] - 1, 4), "20 day return": np.round(cur_df['Close'][i+20] / cur_df['Close'][i] - 1, 4), "60 day return": np.round(cur_df['Close'][i+60] / cur_df['Close'][i] - 1, 4), "One year return": np.round(cur_df['Close'][i+252] / cur_df['Close'][i] - 1, 4)}
+    try:
+        cur_df = dfs[ticker]
+        return {"20 day trend": trend_twenty_day(cur_df.iloc[:i+1]), "60 day trend": trend_sixty_day(cur_df.iloc[:i+1]), "Volume": volume(cur_df.iloc[:i+1]), "RSI": rsi(cur_df.iloc[:i+1]), "Pivotal": intervals(cur_df.iloc[:i+1]), "5 day return": np.round(cur_df['Close'][i+5] / cur_df['Close'][i] - 1, 4), "20 day return": np.round(cur_df['Close'][i+20] / cur_df['Close'][i] - 1, 4), "60 day return": np.round(cur_df['Close'][i+60] / cur_df['Close'][i] - 1, 4), "One year return": np.round(cur_df['Close'][i+252] / cur_df['Close'][i] - 1, 4)}
+    except:
+        print("Error: ", ticker)
+        return {"20 day trend": np.nan, "60 day trend": np.nan, "Volume": np.nan, "RSI": np.nan, "Pivotal": np.nan, "5 day return": np.nan, "20 day return": np.nan, "60 day return": np.nan, "One year return": np.nan}
 
 # df = pd.DataFrame(columns=['i', 'Date', 'ticker'])
 dictionary_data = {'i': [], 'Date': [], 'ticker': []}
